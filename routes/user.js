@@ -9,9 +9,7 @@ const { trackSession } = require('../middleware');
 
 router.use(trackSession);
 
-router.get('/register', async (req, res) => {
-    res.render('../views/user/createUser.ejs');
-});
+router.get('/register', async (req, res) => { res.render('user/createUser'); });
 
 router.post('/register', async (req, res) => {
     const { username, password, confirmPassword, isMemeRecommendationEnabled } = req.body;
@@ -45,9 +43,7 @@ router.post('/register', async (req, res) => {
     }
 });
 
-router.get('/login', async (req, res) => {
-    res.render('../views/user/login.ejs');
-});
+router.get('/login', async (req, res) => { res.render('user/login'); });
 
 router.post('/login', passport.authenticate('local', {
     successRedirect: '/dashboard',

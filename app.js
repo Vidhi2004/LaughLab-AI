@@ -13,9 +13,7 @@ const port = process.env.PORT || 3000;
 const MONGO_URL = process.env.MONGO_URI;
 
 mongoose.connect(MONGO_URL, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    dbName: 'test'
+    dbName: "test"
 })
     .then(() => console.log("Connected to MongoDB Atlas"))
     .catch(err => console.log("MongoDB connection error:", err));
@@ -34,10 +32,12 @@ app.use((req, res, next) => {
 });
 
 app.use(session({
-    secret: 'your-secret-key',
+    secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
-    cookie: { secure: false }
+    cookie: {
+        secure: false
+    }
 }));
 
 app.use(passport.initialize());

@@ -1,0 +1,428 @@
+<div class="chat-container">
+    <div class="chat-header">
+        <!-- Reload Button inside the header -->
+        <button class="reload-btn" onclick="window.location.href = '/chat/<%= chatSession._id %>';">Reload Chat</button>
+        <h2>Chat with <%= chatSession.participants[0].username %> & <%= chatSession.participants[1].username %>
+        </h2>
+    </div>
+
+    <div class="chat-messages" id="chatMessages">
+        <% chatSession.messages.forEach(message=> { %>
+            <div
+                class="message-wrapper <%= message.senderId.toString() === (user ? user._id.toString() : '') ? 'sender' : 'receiver' %>">
+                <div
+                    class="message <%= message.senderId.toString() === (user ? user._id.toString() : '') ? 'sender' : 'receiver' %>">
+                    <% if (message.messageType==='text' ) { %>
+                        <p>
+                            <%= message.message %>
+                        </p>
+                        <% } else if (message.messageType==='meme' ) { %>
+                            <img src="<%= message.mediaUrl %>" alt="Meme" class="meme-image">
+                            <% } %>
+                                <span class="timestamp">
+                                    <%= new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit' ,
+                                        minute: '2-digit' }) %>
+                                </span>
+                </div>
+            </div>
+            <% }) %>
+    </div>
+
+    <div class="chat-input">
+        <form id="messageForm">
+            <input type="text" name="message" id="messageInput" placeholder="Type a message..." required>
+            <button type="submit">Send</button>
+        </form>
+    </div>
+
+    <div id="meme-container">
+        <button id="recommendMemeBtn">Recommend Meme</button>
+        <div id="recommendedMemes" style="margin-top: 10px;">
+            <!-- Memes will be displayed here -->
+        </div>
+    </div>
+</div>
+
+
+<style>
+    /* General Styling */
+    body {
+        font-family: 'Roboto', sans-serif;
+        background-color: #f4f6f9;
+        /* Light, clean background color */
+        color: #333;
+        margin: 0;
+        padding: 0;
+    }
+
+    /* Chat Container */
+    .chat-container {
+        width: 100%;
+        max-width: 900px;
+        /* Increased max-width for a wider container */
+        margin: 20px auto;
+        background-color: #ffffff;
+        border-radius: 12px;
+        /* Slightly rounded corners */
+        overflow: hidden;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        /* Softer shadow */
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* Chat Header */
+    .chat-header {
+        background-color: #075e54;
+        /* WhatsApp's classic green */
+        color: #ffffff;
+        padding: 18px;
+        text-align: center;
+        font-size: 20px;
+        /* Larger font for better readability */
+        font-weight: 600;
+        /* Bold for emphasis */
+        border-bottom: 2px solid #25d366;
+        /* Slightly lighter green for border */
+        position: relative;
+    }
+
+    /* Reload Button */
+    .reload-btn {
+        background-color: #25d366;
+        /* WhatsApp's lighter green for button */
+        color: white;
+        border: none;
+        border-radius: 30px;
+        padding: 10px 20px;
+        cursor: pointer;
+        font-size: 14px;
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        text-align: center;
+        transition: background-color 0.3s;
+    }
+
+    .reload-btn:hover {
+        background-color: #128c7e;
+        /* Darker green on hover */
+    }
+
+    /* Chat Messages Area */
+    .chat-messages {
+        background-color: #f7f7f7;
+        /* Subtle gray for message area */
+        height: 400px;
+        overflow-y: auto;
+        padding: 20px;
+        font-size: 16px;
+        flex-grow: 1;
+    }
+
+    /* Message Wrapper */
+    .message-wrapper {
+        display: flex;
+        margin: 10px 0;
+    }
+
+    .message-wrapper.sender {
+        justify-content: flex-end;
+    }
+
+    .message-wrapper.receiver {
+        justify-content: flex-start;
+    }
+
+    /* Message Styling */
+    .message {
+        min-width: 50px;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: flex-start;
+        max-width: 75%;
+        padding: 12px;
+        border-radius: 18px;
+        position: relative;
+        line-height: 1.6;
+        word-wrap: break-word;
+    }
+
+    /* Sender Message */
+    .message.sender {
+        background-color: #dcf8c6;
+        /* Light green for sender's messages */
+        color: #000000;
+        text-align: left;
+    }
+
+    /* Receiver Message */
+    .message.receiver {
+        background-color: #ffffff;
+        /* White for receiver's messages */
+        color: #4c4c4c;
+        text-align: left;
+        border: 1px solid #ece5dd;
+        /* Light gray border */
+    }
+
+    /* Timestamp */
+    .timestamp {
+        display: block;
+        font-size: 10px;
+        color: rgba(0, 0, 0, 0.5);
+        /* Subtle dark color for timestamp */
+        position: absolute;
+        bottom: 5px;
+        right: 10px;
+    }
+
+    /* Chat Input */
+    .chat-input {
+        display: flex;
+        background-color: #ffffff;
+        padding: 12px;
+        /* Increased padding */
+        border-top: 2px solid #ece5dd;
+        /* Light border */
+    }
+
+    .chat-input input {
+        flex-grow: 1;
+        padding: 15px;
+        /* Increased padding for input field */
+        border: 1px solid #e1e1e1;
+        border-radius: 30px;
+        background-color: #f0f0f0;
+        /* Light gray background */
+        color: #333;
+        font-size: 16px;
+        min-width: 350px;
+        /* Increased min-width */
+    }
+
+    .chat-input input::placeholder {
+        color: #aaa;
+    }
+
+    /* Send Button */
+    .chat-input button {
+        background-color: #075e54;
+        /* WhatsApp green */
+        color: white;
+        border: none;
+        border-radius: 30px;
+        padding: 15px 20px;
+        /* Increased padding for larger button */
+        font-size: 18px;
+        cursor: pointer;
+        margin-left: 12px;
+        transition: background-color 0.3s;
+    }
+
+    .chat-input button:hover {
+        background-color: #128c7e;
+        /* Darker green on hover */
+    }
+
+    /* Meme Container */
+    #meme-container {
+        margin-top: 20px;
+        text-align: center;
+    }
+
+    #meme-container button {
+        background-color: #075e54;
+        /* WhatsApp green for the button */
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        font-size: 16px;
+        border-radius: 30px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    #meme-container button:hover {
+        background-color: #128c7e;
+        /* Darker green on hover */
+    }
+
+    #meme-container #recommendedMemes {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        flex-wrap: wrap;
+        margin-top: 20px;
+    }
+
+    #meme-container img {
+        width: 200px;
+        /* Slightly larger meme size */
+        height: 200px;
+        /* Square aspect ratio */
+        object-fit: cover;
+        border-radius: 10px;
+        /* Rounded corners */
+        transition: transform 0.3s;
+    }
+
+    /* Image Hover Effect */
+    #meme-container img:hover {
+        transform: scale(1.05);
+        /* Slight zoom effect */
+    }
+
+    .meme-image {
+        max-width: 100%;
+        /* Ensure memes don't overflow */
+        height: auto;
+        border-radius: 10px;
+        margin-top: 10px;
+    }
+</style>
+
+<script>
+    // Message form submission handler
+    document.getElementById('messageForm').addEventListener('submit', async (event) => {
+        event.preventDefault(); // Prevent default form submission
+
+        const chatSessionId = '<%= chatSession._id %>';
+        const messageInput = document.getElementById('messageInput');
+        const message = messageInput.value.trim();
+
+        if (!message) return;
+
+        try {
+            const response = await fetch(`/send-message/${chatSessionId}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message, messageType: 'text' })
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to send message');
+            }
+
+            const result = await response.json();
+
+            // Clear input field
+            messageInput.value = '';
+
+            // Add the new message to the chat UI instead of reloading
+            const chatMessages = document.getElementById('chatMessages');
+            const currentUser = '<%= user._id %>';
+            const messageWrapper = document.createElement('div');
+            messageWrapper.className = `message-wrapper sender`;
+
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message sender';
+
+            const messageText = document.createElement('p');
+            messageText.textContent = message;
+
+            const timestamp = document.createElement('span');
+            timestamp.className = 'timestamp';
+            timestamp.textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+            messageDiv.appendChild(messageText);
+            messageDiv.appendChild(timestamp);
+            messageWrapper.appendChild(messageDiv);
+
+            chatMessages.appendChild(messageWrapper);
+
+            // Scroll to the bottom of the chat
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        } catch (error) {
+            console.error('Error sending message:', error);
+            alert('Could not send the message.');
+        }
+    });
+
+    document.getElementById('recommendMemeBtn').addEventListener('click', async () => {
+        const chatSessionId = '<%= chatSession._id %>'; // Get the current chat session ID
+        const messageBar = document.querySelector('.chat-input input'); // Get the message bar
+        const currentMessage = messageBar.value.trim(); // Get the text from the message bar
+
+        if (!currentMessage) {
+            alert('Please type a message before recommending memes.');
+            return;
+        }
+
+        try {
+
+            const response = await fetch(`/recommend-meme/${chatSessionId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    currentMessage
+                })
+            });
+
+            const data = await response.json();
+
+            console.log("Backend Response:", data);
+
+            if (!response.ok) {
+                alert(data.error || "Something went wrong");
+                return;
+            }
+
+            const memesDiv = document.getElementById("recommendedMemes");
+            memesDiv.innerHTML = "";
+
+            if (!data.memeUrls || data.memeUrls.length === 0) {
+                memesDiv.innerHTML = "<p>No memes found.</p>";
+                return;
+            }
+
+            data.memeUrls.forEach((memeUrl) => {
+
+                const img = document.createElement("img");
+
+                img.src = memeUrl;
+                img.className = "meme-image";
+
+                img.style.width = "220px";
+                img.style.margin = "10px";
+                img.style.cursor = "pointer";
+
+                img.onclick = async () => {
+
+                    const sendResponse = await fetch(`/send-message/${chatSessionId}`, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            message: memeUrl,
+                            messageType: "meme"
+                        })
+                    });
+
+                    if (!sendResponse.ok) {
+                        alert("Unable to send meme");
+                        return;
+                    }
+
+                    location.reload();
+
+                };
+
+                memesDiv.appendChild(img);
+
+            });
+
+        }
+        catch (err) {
+
+            console.error(err);
+
+            alert(err.message);
+
+        }
+    });
+</script>

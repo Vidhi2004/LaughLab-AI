@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LaughLab Loader</title>
+    <style>
+        /* CSS styles for the loader */
+        .loader-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #0d0d2b, #4a0d2b);
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            text-align: center;
+            overflow: hidden;
+        }
+
+        .text-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        .moving-text {
+            font-size: 8em;
+            font-weight: 550;
+            color: rgb(172, 172, 172);
+            letter-spacing: 8px;
+            text-transform: uppercase;
+            white-space: nowrap;
+            font-family: 'Proxima Nova', sans-serif;
+            overflow: hidden;
+            border-right: 2px solid rgb(172, 172, 172); /* Simulates the cursor */
+            animation: typing 2s steps(10) forwards, stayStill 3s 2s forwards, reverseTyping 2s steps(10) 5s forwards, blink 1s step-end infinite;
+        }
+
+        @keyframes typing {
+            0% {
+                width: 0;
+            }
+            100% {
+                width: 100%;
+            }
+        }
+
+        @keyframes stayStill {
+            0% {
+                width: 100%;
+            }
+            100% {
+                width: 100%;
+            }
+        }
+
+        @keyframes reverseTyping {
+            0% {
+                width: 100%;
+            }
+            100% {
+                width: 0;
+            }
+        }
+
+        @keyframes blink {
+            50% {
+                border-color: transparent;
+            }
+
+            100% {
+                border-color: rgb(172, 172, 172);
+            }
+        }
+    </style>
+</head>
+
+<body>
+<div class="loader-container">
+    <div class="text-container">
+        <h1 class="moving-text">LaughLab</h1>
+    </div>
+</div>
+
+<!-- Redirect script -->
+<script>
+    // Redirect to the login route after animations and a 1-second pause
+    setTimeout(() => {
+        window.location.href = "/login";
+    }, 8000); // 4 seconds for animation + 1 second pause
+</script>
+</body>
+
+</html>
